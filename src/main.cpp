@@ -9,6 +9,7 @@
 #include "hardware/display.h"
 #include "services/adsb_client.h"
 #include "services/radar_location.h"
+#include "services/touch.h"
 #include "services/wifi_setup.h"
 #include "ui/radar_display.h"
 #include "ui/radar_range.h"
@@ -42,6 +43,13 @@ void onRangeTap() {
   }
 }
 
+void handleTouchToggle() {
+  if (!services::touch::tapped()) {
+    return;
+  }
+
+  onRangeTap();
+}
 void handleBootButton() {
   bootButtonPollLongPress();
   if (bootButtonConsumeTap()) {
@@ -69,6 +77,7 @@ void setup() {
   Serial.println("Plane Radar");
 
   bootButtonInit();
+  services::touch::init();
   displayInit();
   if (wifiShowsSetupScreenOnBoot()) {
     statusScreenPortal();
@@ -84,6 +93,7 @@ void setup() {
 
 void loop() {
   handleBootButton();
+  handleTouchToggle();
   wifiLoop();
 
   if (WiFi.status() != WL_CONNECTED) {
